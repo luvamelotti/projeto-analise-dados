@@ -1,8 +1,11 @@
 ---
 title: "PARCEIROS, PARCEIROS. IDEOLOGIA A PARTE?"
+subtitle: "O impacto da ideologia partidária na política externa na América Latina"
 author: "Luiza Vilela Amelotti"
 date: "18 de Janeiro de 2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -15,4 +18,32 @@ Sys.setenv(PATH = y)
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(error = TRUE)
 ```
+
+## INTRODUÇÃO  
+A relação entre a formação das preferências dos Estados em matéria de política externa e ideologia político partidária é um tema que, apesar de apresentar embates na literatura, ainda é pouco discutido. Este projeto analisa até que ponto a ideologia dos partidos políticos que venceram as eleições na América Latina interfere nas prioridades dadas às relações com determinados Estados. Busca-se observar, comparativamente, o impacto da dimensão esquerda-direita na articulação da política externa latino-americana para com países desenvolvidos e em desenvolvimento.  
+  
+Ideologia e política externa é um tema ainda pouco explorado nos estudos brasileiros de Ciência Política e Relações Internacionais. A literatura corrente tende a abordar uma perspectiva de que a ideologia não importa para a formulação de política externa (ALMEIDA, 1986; SCHNEIDER, 1976; FEARON, 1998), ou ainda que os próprios partidos políticos não priorizam a agenda de política externa por não ser uma matéria que garante altos retornos eleitorais.  
+  
+Estudos mais recentes (THÉRIEN, 2000; ONUKI E OLIVEIRA, 2010), por outro lado, vêm demonstrando que a ideologia dos partidos políticos implica posicionamentos sólidos na tomada de decisão em política externa. Ainda assim, na seara da política comparada, e considerando os países em desenvolvimento para análise, há uma "ausência de material empírico", o que implica em trabalhos sem testes de hipótese (ONUKI E OLIVEIRA, 2010, p. 148).  
+  
+Dessa forma, ao tomar como recorte espacial toda a região da América Latina, o projeto busca contribuir com os estudos mais atuais sobre o tema (RIBEIRO, 2008), na tentativa de preencher este gap que se formou na literatura.     
+  
+O recorte temporal (1990 a 2018), por sua vez, marca a terceira onda  de democratização, já firmada na região latino-americana. A atualidade deste fenômeno contribui para compreensão do cenário corrente da América Latina.  
+  
+As transições vividas pelos países no referido período reconfiguraram a competição partidária e a dinâmica esquerda-direita na região através da abertura dos regimes e a consolidação de sistemas multipartidários, competitivos e plurais. Contudo, os anos iniciais deste recorte, devido à "novidade democrática", são marcados por um afastamento da esquerda e da extrema direita pelas elites, até então dominantes, que viam nestes, ameaças à manutenção de seu poder.   
+  
+Desta forma, questiona-se se tais mudanças foram significativas para a formação de parcerias com outros Estados, uma vez que, considera-se a política externa uma política de partidos orientados por preferências. A hipótese principal é de que a ideologia dos partidos que compõem os governos latino-americanos impacta as preferências destes em matérias de política externa. Espera-se que quando a esquerda for preponderante, haverá ênfase nos países em desenvolvimento. Por outro lado, a direita priorizará as relações econômicas com aqueles desenvolvidos.   
+  
+Neste sentido, argumenta-se que os grupos que compõem a esquerda apresentam maior propensão a desenvolver relações com os Estados em desenvolvimento por priorizarem os avanços sociais frente aos econômicos. Ou seja, a prioridade aos países em desenvolvimento reflete a busca pela consolidação como atores de peso no sistema internacional, dominado por nações desenvolvidas.  
+A direita, por sua vez, por valorizar mais a esfera econômica, em tese, priorizará os países desenvolvidos, tendo em vista a possiblidade de maior crescimento comercial e, em consequência, o estabelecimento, no sistema internacional, como uma potência econômica. 
+  
+Para tanto, serão analisadas comparativamente, como se desenvolveram as relações econômicas e políticas da América Latina. A variável independente é a ideologia partidária. Pretende-se analisar em que medida esta variável afeta (i) as trocas comerciais, (ii) estabelecimento de acordos bilaterais e (iii) votações da Assembleia Geral da ONU.  
+
+Através das variáveis dependentes pretende-se criar um índice agregado (índice de proximidade) que aponte quem são os principais países com os quais a América Latina mantém relações. Ou seja, busca-se observar com que Estados cada país latino-americano apresenta os maiores valores de exportações e importações; de acordos bilaterais; e convergência nas votações da Assembleia Geral da ONU.   
+  
+Assim, este projeto propõe uma compilação das classificações sobre ideologia partidária na América Latina. Serão considerados trabalhos consolidados e autores especialistas na área, tais como Coppedge (1997 e 1998), Alcántara Sáez (2004), Tarouco e Madeira (2013) . A análise agregada de algumas das categorizações existentes sobre o tema proporciona maior confiabilidade nos dados, visto que a ideologia é uma variável de valor subjetivo.  
+
+A partir desta classificação, busca-se encontrar um padrão no comportamento dos governos latino americanos a partir de sua ideologia. Não é esperado que esta seja o único fator a determinar a agenda de política externa, mas que se revele um condicionante relevante no desenho das prioridades adotadas nestas matérias.  
+
+A existência de um padrão corrobora o argumento de Onuki e Oliveira (2010), de que ideologia e política externa estão diretamente vinculadas. Fornece, também, um mecanismo extra - ideologia - ao argumento de Cervo (2000) sobre as relações da América Latina com os Estados Unidos durante a década de 1990 . Por outro lado, a inexistência deste padrão corrobora os autores Almeida (1986) e Schneider (1976), de que os partidos não se importam com matérias de política externa, devido ao baixo retorno eleitoral. Ou reforça, ainda, que a ideologia não é um fator relevante para a tomada de decisão em política externa (FEARON, 1998).
 
