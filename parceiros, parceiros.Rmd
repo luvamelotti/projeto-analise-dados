@@ -1,0 +1,18 @@
+---
+title: "PARCEIROS, PARCEIROS. IDEOLOGIA A PARTE?"
+author: "Luiza Vilela Amelotti"
+date: "18 de Janeiro de 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# tex / pandoc options for pdf creation
+x <- Sys.getenv("PATH")
+y <- paste(x, "/miktex/bin", sep=";")
+Sys.setenv(PATH = y)
+```
+```{r, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
+
