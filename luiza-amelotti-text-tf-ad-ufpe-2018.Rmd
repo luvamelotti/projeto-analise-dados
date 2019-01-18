@@ -1,0 +1,488 @@
+---
+title: "Como minar a corrupção?"
+subtitle: "Os efeitos das configurações sócio-política nos índices de corrupção"
+author: "Luiza Vilela Amelotti"
+date: "18 de janeiro de 2019"
+fontsize: 12pt
+linestretch: 1.5
+geometry: margin=2cm
+output: pdf_document
+abstract: "Os índices de corrupção são impactados por fatores sócio-políticos? Este paper busca analisar se participação das mulheres nos Parlamentos nacionais, Qualidade do Governo e Estado de Direito são variáveis capazes de impactar atitudes corruptivas nos países. São coletados dados do *Quality of Government Institute* para todos os Estados do mundo. Para tanto, foi utilizado o modelo de regressão linear. A partir dos testes de pressupostos o modelo precisou ser tratado, dessa forma, incluiu-se a variável IDH e o índice de corrupção passou por uma transformação Box-Cox. Os resultados para o impacto das variáveis Qualidade de Governo e IDH sobre a VD foram condizentes com a literatura corrente: há uma relação negativa, mas significativa entre elas. Por outro lado, os efeitos da participação de mulheres não foram significativos, indo de encontro às teorias atuais."
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+# Rodar os pacotes exigidos
+library(pander)
+library(car)
+library(haven)
+library(MASS)
+library(pander)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(stats)
+library(lmtest)
+library(ggpubr)
+library(ggridges)
+library(coefplot)
+
+# Abrindo o banco de dados 1
+library(readxl)
+luiza_amelotti_bd_tf_ad_ufpe_2018 <- read_excel("C:/Users/Luh/Google Drive/AULAS MESTRADO/2018_2 davi/luiza-amelotti-bd-tf-ad-ufpe-2018.xlsx")
+View(luiza_amelotti_bd_tf_ad_ufpe_2018)
+
+# Atribuindo novo nome a base de dados
+DATABASE_CORRUPCAO <- luiza_amelotti_bd_tf_ad_ufpe_2018
+
+# Omitindo as células vazias da base
+na.omit(DATABASE_CORRUPCAO)
+
+# Organizando a VD (índice de corrupção - vdem_corr):
+Y <- DATABASE_CORRUPCAO$vdem_corr
+# Organizando as VIs:
+X1 <- DATABASE_CORRUPCAO$wdi_wip  # participação de mulheres no parlamento
+X2 <- DATABASE_CORRUPCAO$wbgi_rle # estado de direito
+X3 <- DATABASE_CORRUPCAO$icrg_qog # qualidade do governo
+```
+
+### INTRODUÇÃO  
+  
+Os índices de corrupção são impactados por fatores sócio-políticos? Este projeto investiga se a participação de mulheres no legislativo (X1), a consolidação do Estado de Direito (X2) e a qualidade governamental (X3) são preditores dos índices de corrupção nos países (Y). A literatura traz que fatores culturais, governança e desenvolvimento são alguns indicadores que podem  afetar as práticas corruptivas nos países.    
+Deste modo, a hipótese geral aponta que há relação entre entre os fatores sócio-políticos de um país e os seus índices de corrupção.    
+Para teste das hipóteses foi utilizado o modelo de regressão linear. Para analisar a qualidade do modelo, foram testados, dentre outros, os pressupostos da homocedasticidade, linearidade e distribuição dos erros. Verificou-se a violação de três pressuposto: homocedasticidade, multicolinearidade e independencia dos erros. Na tentativa de solucionar tais violações foram seguidas as recomendações: (a) transformação da variável predita, (b) remoção de uma das variáveis preditoras e (c) inclusão de uma nova variável preditora. Desta forma, além da utilização da transformação de box-cox para os índices de corrupção, um novo modelo de regressão foi gerado sem a variável Estado de Direito (X2) e com uma nova preditora: ìndice de desenvolvimento humano, IDH (X4). 
+Os dados foram coletados do *Quality of Government Institute - QoG, basic dataset*^[disponível em: <https://qog.pol.gu.se/data/datadownloads/qogbasicdata>]. A amostra conta com 194 países do mundo, divididos em 10 regiões.  
+Os resultados finais demonstraram que a participação de mulheres na política não se revelou um fator significativo para explicar os índices de corrupção; por outro lado, qualidade do governo e IDH se mostraram relevantes para a análise.  
+O paper está dividido em 5 seções. A primeira aborda uma revisão da literatura, tratando do tema corrupção e das relações que as teorias trazem sobre fatores que a impactam. A segunda parte trata da análise exploratória dos dados utilizados no paper e suas respectivas estatísticas descritivas. Em seguida são apresentadas as hipóteses do modelo. Na quarta seção são desenvolvidos os testes e resultados. Por fim, estão as considerações finais.    
+
+### 1. REVISÃO DA LITERATURA  
+
+A corrupção é um fenômeno que afeta todos os países do mundo em diversos graus e intensidade. Sua ocorrência se dá sobre todas as esferas, públicas e privadas. Assim, a prática da corrupção, principalmente em meios públicos, tem sido o gatilho para diversas revoluções ao redor do mundo, tal como a Primavera Árabe (KOSMEHL, 2019).  
+
+A participação das mulheres no meio pública é um fenômeno recente no mundo. Essa esfera, historicamente dominada pelos homens, tem, aos poucos, passado por mudanças, abrindo espaço para a representação de novos grupos. Atualmente, diversos países têm incorporado aos seus ordenamentos internos regras que estimulam a inclusão de minorias políticas. Isso pode ser visto com as leis de cotas femininas para os os partidos lançarem candidatos (Argentina, Brasil, Uruguai, por exemplo).    
+
+Estudos comportamentais atuais têm tratado da relação entre a participação feminina na política e os índices de corrupção. Argumenta-se que as mulheres tendem a serA mais honestas do que os homens, além de mais engajadas e confiáveis acerca da coisa pública (EAGLY; CROWLEY, 1986; GOERTZEL, 1983; REISS; MITRA, 1998). Assim, acredita-se que as mulheres estejam mais dispostas a sacrificarem ganhos pessoais em detrimento do bem público (DOLLAR ET AL., 2001). Além disso, a literatura identifica também fatores culturais (como, por exemplo, obediência às leis e confiança interpessoal) associados a corrupção. 
+
+O Estado de Direito reflete uma governança dotada de respeito às regras e instiuições, além da proteção aos cidadãos. Destaca-se que através da estratégia de promoção do Estado de Direito, mecanismos como *accountability*, transparencia e separação dos poderes garatam  a legitmidade governamental e assegurem o desenvolvimento sócio-econômico da nação. Todos esses pressupostos vão de encontro à corrupção que, além de gerar descrença no Estado, afeta o desempenho sócio-econômico (KOSMEHL, 2019) do país. Pobreza, baixa expectativa de vida, má distribuição de renda, saúde pública de baixa qualidade são alguns dos fatores que podem ser associados a altos índices de corrupção, pois países com baixo desenvolvimento apresentam menos  condições de promover reformas institucionais (ROSE-ACKERMAN; PALIFKA, 2016). Todavia, tais características não significam a ausência de transgressões nas sociedades industriais avançadas, mas pesquisadas comparadas apontam maior enraizamento nos Estados em desenvolvimento de práticas corruptivas (POWER; GONZÁLEZ, 2003). 
+
+### 2. ANÁLISE EXPLORATÓRIA DOS DADOS  
+
+```{r include=FALSE}
+#Necessário baixar a base de dados 2
+# abrindo os dados da nova varável
+luiza_amelotti_bd2_tf_ad_ufpe_2018 <- read_excel("C:/Users/Luh/Google Drive/AULAS MESTRADO/2018_2 davi/database/luiza-amelotti-bd2-tf-ad-ufpe-2018.xlsx")
+View(luiza_amelotti_bd2_tf_ad_ufpe_2018)
+
+# atribuindo novo nome a base de dados 2 - complementar
+undp_hdi <- luiza_amelotti_bd2_tf_ad_ufpe_2018
+
+#agregando a nova variável à base de dados original:
+DATABASE_CORRUPCAO2 <- cbind.data.frame(DATABASE_CORRUPCAO, Y, undp_hdi)
+
+na.omit(DATABASE_CORRUPCAO2)
+X4 <- DATABASE_CORRUPCAO2$undp_hdi
+```
+#### Estatística descritiva  
+  
+As tabelas abaixo listam e carcterizam todas as variáveis utilizadas no modelo: 
+  
+|Nome        |Significado           |Variável      |No modelo |Tipo       |
+|------------|----------------------|--------------|----------|-----------|
+|cname       |Nome do País          |NA            |NA        |caractere  |
+|ht_region   |Região do mundo       |NA            |NA        |categórica |
+|wdi_wip     |% mulheres parlamento |independente  |X1        |numérica   |
+|wbgi_rle    |Estado de Direito     |independente  |X2        |numérica   |
+|icrg_qog    |Qualidade do Governo  |independente  |X3        |numérica   |
+|vdem_corr   |Índice de Corrupção   |dependente    |Y         |numérica   |
+|undp_hdi    |IDH                   |independente  |X4        |numérica   |
+Table: Descrição das variáveis  
+    
+Abaixo são reportadas as variáveis de modo independente. Analisa-se a frequência nas regiões do mundo, visto que a investigação por país se tornaria muito extensiva.  
+
+**Porcentagem de mulheres nos Parlamentos nacionais**:    
+A mensuração da variável corresponde à parte do total de assentos ocupados por mulheres nos parlamentos (para países unicamerais) ou nas câmaras baixas (para países bicamerais). O valor mínimo registrado é 0 (Vanuatu, Micronésia, Palau, Qatar e Tonga) e o máximo 63,8 (Ruanda). A média é 20,8 e a mediana, 18,8. Apenas para um país, Taiwan, não houve dados disponíveis. 
+O gráfico abaixo demonstra onde se localiza a maior concentração de países em relação a porcentagem de participação das mulheres nos Parlamentos nacionais. Percebe-se que, para todas as regiões, um número baixo de países apresenta mais de 50% de participação feminina no legislativo. Além disso, a África Subsaariana, América Latina e Europa Ocidental e América do Norte parecem ter maior homogeneidade na distribuição dos casos, enquanto as outras regiões apresentam picos, ou seja, concentrações altas de Estados para níveis diferentes de participação. 
+    
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# gerando os gráficos para análise da estatística descritiva
+# criando um gráfico de densidade da participação feminina por região do mundo:
+DATABASE_CORRUPCAO$ht_region <- (DATABASE_CORRUPCAO$ht_region = factor(DATABASE_CORRUPCAO$ht_region, 
+                                                                   labels = c("Eastern Europe and post Soviet Union", "Latin America", "North Africa & the Middle East",
+                                                                              "Sub-Saharan Africa","Western Europe and North America","East Asia", "South-East Asia", 
+                                                                              "South Asia", "The Pacific", "The Caribbean")))
+
+mulheres <- ggplot(DATABASE_CORRUPCAO, aes(x = wdi_wip, y = DATABASE_CORRUPCAO$ht_region , fill = DATABASE_CORRUPCAO$ht_region )) +
+  geom_density_ridges(alpha=0.3, bandwidth=2) +
+  theme_light() +
+  theme(axis.text.x=element_text(hjust = 0)) +
+  theme(legend.position = "none") +
+  labs(title="Mulheres no Parlamento por Regiões do Mundo", 
+       x="% Mulheres no Parlamento", y="",
+       fill = "",
+       caption = "Elaboração Própria com base nos dados do QoG")
+mulheres
+```
+  
+Em relação à VD, os casos apresentam a seguinte distribuição:  
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# criando gráfico de relação entre % de mulheres e corrupção
+basic <- ggplot(DATABASE_CORRUPCAO, aes(x=vdem_corr, y=wdi_wip)) + geom_point()
+basic+
+  ggtitle("% Mulheres no Parlamento x Índice de Corrupção") + 
+  xlab("índice de corrupção") +
+  ylab("% mulheres no Parlamento") + 
+  theme(axis.title = element_text( angle = 45, color="black", size=10, face=2)) +
+  theme(axis.title.x = element_text(angle = 0, color = "black", size = 10, face = 2)) +
+  theme(axis.text = element_text( angle = 90, color="black", size=8, face=2))
+```
+  
+Percebe-se uma aleatoridade na distribuição do índice de corrupção dos países em relação a participação de mulheres no legislativo. Ainda assim, há uma pequena concentração de casos em que se apresentam índices de corrupção acima de 0,5 e porcentagem de mulheres no Parlamento menor que 30%.  
+O caso mais destoante da análise é o de Ruanda, que apresenta a maior porcentagem de participação feminina maior, porém esse fato não aparentou ser suficiente para a redução da corrupção.
+  
+  
+**Estado de Direito**:  
+A variável é uma estimação composta de vários fatores que medem o grau em que os agentes confiam e respeitam as regras da sociedade. O valor máximo registrado é -2,3 (Somália) e o máximo, 2,1 (Finlandia). A média e mediana são, respectivamente, -0,05 e -0,02.  
+O gráfico demonstra que a maioria das regiões tem picos de concentração, enquanto a América Latina se apresenta mais homogênea na distribuição de casos.
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# criando gráfico de índice de estado de direito x região
+DATABASE_CORRUPCAO$ht_region <- (DATABASE_CORRUPCAO$ht_region = factor(DATABASE_CORRUPCAO$ht_region, 
+                                                                       labels = c("Eastern Europe and post Soviet Union", "Latin America", "North Africa & the Middle East",
+                                                                                  "Sub-Saharan Africa","Western Europe and North America","East Asia", "South-East Asia", 
+                                                                                  "South Asia", "The Pacific", "The Caribbean")))
+
+rle2 <- ggplot(DATABASE_CORRUPCAO, aes(x = DATABASE_CORRUPCAO$wbgi_rle, y = DATABASE_CORRUPCAO$ht_region , 
+                                      fill = DATABASE_CORRUPCAO$ht_region )) +
+  geom_density_ridges(alpha=0.3, bandwidth=0.1) +
+  theme_light() +
+  theme(axis.text.x=element_text(hjust = 0)) +
+  theme(legend.position = "none") +
+  labs(title="Estado de Direito por Regiões do Mundo", 
+       x="índice Estado de Direito", y="",
+       fill = "",
+       caption = "Elaboração Própria com base nos dados do QoG")
+rle2
+```
+  
+Gráfico da relação Estado de Direito x índice de corrupção mostra uma relação decrescente entre as variáveis, além de uma maior concentração de casos para índices de corrupção maiores que 0,5.
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# criando gráfico plot Estado de Direito x indice corrup
+basic3 <- ggplot(DATABASE_CORRUPCAO, aes(x=vdem_corr, y=wbgi_rle)) + geom_point()
+basic3+
+  ggtitle("Estado de Direito x Índice de corrupção") + 
+  xlab("índice de corrupção") +
+  ylab("índice Estado de Direito") + 
+  theme(axis.title = element_text( angle = 45, color="black", size=10, face=2)) +
+  theme(axis.title.x = element_text(angle = 0, color = "black", size = 10, face = 2)) +
+  theme(axis.text = element_text( angle = 90, color="black", size=8, face=2))
+```
+**Índice de qualidade do governo**:  
+Este índice varia de 0 a 1: quanto mais próximo de 1, maior a qualidade do  governo. O menor valor registrado é de 0,08 (Somália) e o máximo é de 0,97 (Dinamarca, Finlandia, Noruega, Somália, Suécia). A média da variável é 0,52 e a mediana 0,47.  
+O gráfico abaixo mostra a densidade de países pelo índice de qualidade do governo em cada região do mundo. Percebe-se que, em média, os países apresentam uma taxa de qualidade governamental de 0,5. A região do Caribe é a que tem maior concentração de Estados com maior qualidade de governo.
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# criando gráfico de índice de qualidade do governo x região
+qog <- ggplot(DATABASE_CORRUPCAO, aes(x = DATABASE_CORRUPCAO$icrg_qog, y = DATABASE_CORRUPCAO$ht_region , 
+                                      fill = DATABASE_CORRUPCAO$ht_region )) +
+  geom_density_ridges(alpha=0.3, bandwidth=0.1) +
+  theme_light() +
+  theme(axis.text.x=element_text(hjust = 0)) +
+  theme(legend.position = "none") +
+  labs(title="Qualidade do Governo por Regiões do Mundo", 
+       x="índice qualidade do governo", y="",
+       fill = "",
+       caption = "Elaboração Própria com base nos dados do QoG")
+qog
+```
+  
+o gráfico da relação qualidade do governo x índice de corrupção indica uma relação decrescente entre as variáveis: quanto maior a qualidade do governo, menor a corrupção no país.  
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+basic2 <- ggplot(DATABASE_CORRUPCAO, aes(x=vdem_corr, y=icrg_qog)) + geom_point()
+basic2+
+  ggtitle("Qualidade do Governo x Índice de Corrupção") + 
+  xlab("índice de corrupção") +
+  ylab("índice de qualidade do governo") + 
+  theme(axis.title = element_text( angle = 45, color="black", size=10, face=2)) +
+  theme(axis.title.x = element_text(angle = 0, color = "black", size = 10, face = 2)) +
+  theme(axis.text = element_text( angle = 90, color="black", size=8, face=2))
+```
+  
+
+**Índice de Desenvolvimento Humano**:  
+Essa medida resume a média das principais dimensões do desenvolvimento humano. O IDH é a média geométrica dos índices normalizados. O valor mínimo registrado é 0,34 (República Centro Africana) e o máximo é 0,94 (Noruega). A média é 0,69 e a mediana 0,72. Os dados estavam ausentes para 8 países (Taiwan, Coréia do Norte, Mônaco, Nauru, Ilhas Marshall, San Marino, Somália e Tuvalu).  
+O gráfico abaixo mostra que as regiões do mundo apresentam uma distribuição semelhante de casos em relação aos países.
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# criando gráfico de IDH x região
+DATABASE_CORRUPCAO$ht_region <- (DATABASE_CORRUPCAO$ht_region = factor(DATABASE_CORRUPCAO$ht_region, 
+                                                                       labels = c("Eastern Europe and post Soviet Union", "Latin America", "North Africa & the Middle East",
+                                                                                  "Sub-Saharan Africa","Western Europe and North America","East Asia", "South-East Asia", 
+                                                                                  "South Asia", "The Pacific", "The Caribbean")))
+
+idh <- ggplot(DATABASE_CORRUPCAO, aes(x = DATABASE_CORRUPCAO2$undp_hdi, y = DATABASE_CORRUPCAO$ht_region , 
+                                      fill = DATABASE_CORRUPCAO$ht_region )) +
+  geom_density_ridges(alpha=0.3, bandwidth=0.1) +
+  theme_light() +
+  theme(axis.text.x=element_text(hjust = 0)) +
+  theme(legend.position = "none") +
+  labs(title="IDH por Regiões do Mundo", 
+       x="IDH", y="",
+       fill = "",
+       caption = "Elaboração Própria com base nos dados do QoG")
+idh
+```
+  
+Gráfico da relação IDH x índice de corrupção mostra que há uma relação decrescente entre as variáveis, porém mais dispersa do que aquelas mostradas nas anteriores.  
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# gráfico plot Estado de Direito x indice corrup
+basic5 <- ggplot(DATABASE_CORRUPCAO, aes(x=vdem_corr, y=DATABASE_CORRUPCAO2$undp_hdi)) + geom_point()
+basic5+
+  ggtitle("IDH x Índice de Corrupção") + 
+  xlab("índice de corrupção") +
+  ylab("IDH") + 
+  theme(axis.title = element_text( angle = 45, color="black", size=10, face=2)) +
+  theme(axis.title.x = element_text(angle = 0, color = "black", size = 10, face = 2)) +
+  theme(axis.text = element_text( angle = 90, color="black", size=8, face=2))
+```
+  
+**Ìndice de Corrupção**:  
+Esta constitui a variável dependente do modelo. O índice é obtido tomando-se a média de (a) índice de corrupção do setor público; (b) índice de corrupção executiva; c) o indicador de corrupção legislativa; e (d) o indicador de corrupção judicial. Em outras palavras, essas quatro esferas de governo diferentes são ponderadas igualmente no índice resultante.  
+A variação desse índice é entre 0 e 1. Os casos apresentam como menor valor 0,01 (Dinamarca) e maior valor 0,9 (Chade). A média é 0,50 e a mediana 0,56.  
+O gráfico demonstra que a América Latina tem os casos mais homogêneos, enquanto o Caribe e o Sul Asiático têm maior heterogeneidade na distribuição dos países. Estas duas últimas regiões são também as que apresentam maiores concentrações de Estados com índices de corrupção menores que 0,5.   
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# criando gráfico de índice de corrupção x região
+DATABASE_CORRUPCAO$ht_region <- (DATABASE_CORRUPCAO$ht_region = factor(DATABASE_CORRUPCAO$ht_region, 
+                                                                       labels = c("Eastern Europe and post Soviet Union", "Latin America", "North Africa & the Middle East",
+                                                                                  "Sub-Saharan Africa","Western Europe and North America","East Asia", "South-East Asia", 
+                                                                                  "South Asia", "The Pacific", "The Caribbean")))
+
+corr <- ggplot(DATABASE_CORRUPCAO, aes(x = DATABASE_CORRUPCAO$vdem_corr, y = DATABASE_CORRUPCAO$ht_region , 
+                                      fill = DATABASE_CORRUPCAO$ht_region )) +
+  geom_density_ridges(alpha=0.3, bandwidth=0.1) +
+  theme_light() +
+  theme(axis.text.x=element_text(hjust = 0)) +
+  theme(legend.position = "none") +
+  labs(title="Corrupção por Regiões do Mundo", 
+       x="Índice de Corrupção", y="",
+       fill = "",
+       caption = "Elaboração Própria com base nos dados do QoG")
+corr
+```
+
+
+#### 3. HIPÓTESES  
+  
+Diante da análise exploratória das variáveis define-se como Hipótese principal do paper: *Indicadores sócio-econômicos impactam os níveis de corrupção dos países*. Este argumento se desdobra em 3 hipóteses específicas:  
+$H_1$ : Participação das mulheres na política impacta os níveis de corrupção.  
+$H_2$ : Estado de Direito impacta os níveis de corrupção.  
+$H_3$ : Índices de qualidade do governo impacta os níveis de corrupção.  
+A partir dessas hipóteses serão desenvolvidos os testes e análise de pressupostos sobre as variáveis.  
+  
+### 4. TESTES E PRESSUPOSTOS  
+  
+O gráfico e a tabela abaixo apontam os resultados da regressão:
+  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+# Rodando a o teste da regressão
+reg <- lm(Y ~ X1 + X2 + X3)
+coefplot(reg)
+```
+  
+Através do gráfico se observam as seguintes premissas:   
+X1 (participação feminina) não tem efeitos sobre os índices de corrupção.  
+X2 (qualidade do governo) tem efeitos negativo sobre os índices de corrupção: um aumento em uma unidade de X2, reduz a VD em, aproximadamente, 0,22.   
+X3 (estado de direito) tem efeitos negativos sobre os índices de corrupção: um aumento em unidade de X3, reduz a VD em 0,08.  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# criando tabela com dados do summary que não aparecem no gráfico
+regressao <- data.frame(Observations = 194,
+                        "Deleted observations" = 63,
+                        Residual_Std._Error = "0,1294",
+                        R2 = "0,8028",
+                        Adjusted_R2 = "0,7981",
+                        p_value = "2,2e-16"
+                        )
+pander(regressao, caption = "Regression Results")
+```
+  
+Os resultados mostram que o teste tem poder explicativo de 79%.  
+
+```{r echo=FALSE}
+# Plotando os resultados da regressão
+par(mfrow=c(2,2))  # set 2 rows and 2 column plot layout
+plot(reg)
+```
+  
+**Testando os pressupostos**:  
+*Homocedasticidade*:  
+Através do gráfico de Resíduos *vs* Preditos, percebe-se uma tendência no comportamento dos casos: a medida que os valores preditos aumentam, os resíduos se tornam mais espaçados, enquanto que valores preditos menores apontam resíduos mais concentrados. Essa tendência indica heterocedasticidade na amostra.   
+Para confirmar, foi utilizado o Teste Breusch-Pagan:  
+```{r echo=FALSE}
+pander(bptest(reg, varformula = NULL, studentize = TRUE, data = DATABASE_CORRUPCAO()))
+```
+  
+O resultado do teste aponta um p-valor > 0,05 confirmando a heterocedasticidade.  
+SOLUÇÃO POSSÍVEL: transformação da varíavel predita.    
+
+*Linearidade*:  
+Através do gráfico de resíduos percebe-se, também, o respeito à linearidade do modelo.  
+  
+*Ajuste do modelo*  
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+qqPlot(reg, main="QQ Plot")
+```
+O gráfico evidencia um bom ajuste do modelo.  
+  
+*Presença de outliers*:
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+outlierTest(reg)
+```
+O teste aponta o caso 85 como outlier. Refere-se a Jamaica. Confirma o que foi mostrado no gráfico QQ Plot.    
+  
+*Não-normalidade*:  
+Através do gráfico *Normal QQ*, percebe-se a distribuição normal dos erros. Pode-se confirmar esse resultado por meio do teste da distribuição dos resíduos.  
+
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+dist_residuo <- studres(reg)
+# histograma dos resíudos:
+hist(dist_residuo, freq=FALSE,
+     main="Distribuição dos Resíduos")
+xfit <- seq(min(dist_residuo),max(dist_residuo),length=40)
+yfit <- dnorm(xfit)
+lines(xfit, yfit)
+```
+  
+Os testes evidenciam a normalidade dos erros.  
+  
+*Multicolinearidade*:  
+Os testes abaixo apontam o fator de inflacionamento das variáveis. Valores altos (em geral, acima de 5) e raíz do fator acima de 2 traduz possível violação do pressuposto de multicolineraridade.  
+```{r echo=FALSE}
+pander(vif(reg)) 
+pander(sqrt(vif(reg)) > 2) 
+```
+o Fator de inflacionamento de X2 e X3 mostram multicolineridade entre as variáveis. O modelo viola o pressuposto.       
+SOLUÇÃO POSSÍVEL: remoção de uma das variáveis preditoras do modelo.    
+  
+*Independência dos erros*:  
+O teste de Durbin Watson é utilizado para análise da autocorrelação dos erros.   
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+durbinWatsonTest(reg)
+```
+O p-valor < 0,05 indica que a H0 é rejeitada, ou seja, há correlação entre os erros, violando o pressuposto da independencia dos erros.    
+SOLUÇÃO POSSÍVEL: acréscimo de uma nova variável preditora no modelo.
+  
+**Solucionando a violação dos pressupostos**:    
+  
+*Transformação da Variável*:  
+A partir da transformação box-cox, observa-se qual o valor de $\gamma$ maximiza a função.    
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Fazendo a transformação da variável dependente para respeitar o pressuposto da homocedasticidade
+# Transformação Box-Cox para observar o valor de lâmbida que maximiza a função
+par(mfrow=c(1,2))
+trans_var <- boxCox(reg, lam=seq(-1, 1, 1/10))
+plot(trans_var)
+# A função é maximizada à um lâmbida de 0.5
+#transformando a variável:
+Y_transf <- (DATABASE_CORRUPCAO$vdem_corr^(0.5)-1)/0.5
+```
+  
+O teste indica que a função é maximizada para $\gamma = 0,5$. A partir disso, com a variável transformada, o modelo é retestado.  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#reanalisando a regressão e os pressupostos:
+par(mfrow=c(2,2))
+reg2 <- lm(Y_transf ~ X1 + X2 + X3)
+plot(reg2)
+```
+  
+Os novos gráficos apontam maior dispersão dos casos após a transformação da VD. Contudo, ainda é perceptível uma tendência dos resíduos: quanto maior os valores ajustados, maior a dispersão.   
+
+*substituição de variável no modelo*:  
+Para completar a reanálise do modelo, e na tentativa de sanar as violações dos pressupostos, uma das variáveis preditoras foi substituida. X3 (Estado de Direito) foi omitida do teste, uma vez estava fortemente correlacionada com X2 (qualidade de governo), mas apresentava menor poder explicativo que a anterior. X4 (IDH) foi incluída como nova variável.    
+
+Assim, uma nova hipótese foi inclusa para teste: $H_4$: o IDH do país impacta os índices de corrupção.        
+```{r echo=FALSE, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+#regressão final com nova VI (X4), exclusão da variável wbgi_rle (X2) para tentar solucionar a multicolearidade e VD transformada: 
+reg_final <- lm(Y_transf ~ X1 + X3 + X4)
+# dados regressão final
+regressao_final <- data.frame(Observations = c(194),
+                        "Deleted observations" = c(65),
+                        Residual_Std._Error = c("0,2376"),
+                        R2 = c("0,7842"),
+                        Adjusted_R2 = c("0,779"),
+                        p_value = c("2,2e-16"))
+pander(regressao_final, caption = "Final Regression Results")
+
+coefplot(reg_final)
+```
+  
+O novo gráfico dos coeficientes da regressão demonstra que X1 (participação de mulheres) não afeta a Y (índice de corrupção); X3 (qualidade do governo) afeta negativamente Y - a cada aumento de uma unidade em X3, Y é reduzido em  1,9. Finalmente, a nova variável do modelo, X4, impacta negativamente  a VD. Aumentando o IDH (X4) em unidade, o índice de corrupção é reduzido em 0,33. O novo modelo tem um poder explicativo de 77%, e o p-valor indica a rejeição da $H_0$, ou seja, aponta que há relação significativa entre as variáveis. Contudo, o valor extremamente baixo pode ser efeito da ampla quantidade de casos envolvidos no modelo.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+par(mfrow=c(2,2))
+plot(reg_final)
+```
+  
+Através do novo gráfico de *resíduos vs. preditos* percebe-se uma mudança na configuração dos dados que se apresentam mais espaçados, mas ainda se percebe a tendência dos casos. Através do teste de Breush-Pagan, o p-valor continua maior que 0,05, o que indica que o modelo continua heterocedástico.  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+bptest(reg_final, varformula = NULL, studentize = TRUE, data = DATABASE_CORRUPCAO2())
+```
+  
+Reanalisando o pressuposto da multicolinearidade através do teste de fator de inflacionamento da variável se observa que a violação desse pressuposto foi solucionada. Todos os valores ficaram abaixo de 5 e a raíz do fator foi menor que 2.  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+pander(vif(reg_final)) # variação da inflação dos fatores
+pander(sqrt(vif(reg_final)) > 2) 
+```
+  
+Reanalisando o pressuposto da independencia dos erros, pelo teste de Durbin Watson, percebe-se que a violação do pressuposto foi solucionada, visto que O p-valor > 0,05 não rejeita a $H_0$, ou seja, confirma a independencia dos erros.  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+durbinWatsonTest(reg_final)
+```
+  
+Desse modo, percebe-se que a hipótese específica 1 (participação das mulheres no legislativo, X1, impacta os índices de corrupção, Y) é rejeitada. Não existe relação significativa entre X1 e Y. Já a hipóetese 2 (Estado de Direito, X2, impacta os índices de corrupção, Y) é corroborada. A terceira hipótese específica (Qualidade do governo, X3, impacta os índices de corrupção, Y) é corroborada. Finalmente, a hipótese específica adicional (IDH, X4, impacta os índices de corrupção, Y) também é confirmada.  
+Os pressupostos da multicolinearidade e da independencia do erro, violados, foram consertados com a substituição das variáveis preditoras (X2 por X4). Contudo, a heterocedasticidade, apesar de ter tido uma atenuidade, não foi solucionada.   
+
+### CONSIDERAÇÕES FINAIS  
+
+Este paper compõe uma gama de estudos acerca dos diferentes fatores que se relacionam com a corrupção. Tomada a prática corruptiva nos países como fenômeno a ser explicado, foi trazido um olhar sócio-político para a análise, com o objetivo de testar se participação das mulheres na política, a qualidade do governo e o IDH são fatores sucificientes para entender porque em alguns países há índices muito elevados, enquanto em outros os níveis de corrupção são baixos.  
+Devido à violação de pressupostos, as variáveis precisaram passar por um tratamento. A variável dependente foi transformada através por Box-Cox, a variável Estado de Direito, que apresentava alta correlação com a qualidade de governo foi removida e uma nova - IDH - foi inserida.    
+Os resultados finais para as variáveis qualidade do governo e IDH se mostram condizentes com a teoria. Por outro lado, a variável participação de mulheres nos Parlamentos nacionais, neste teste, apresentou resultados que vão de encontro a estudos mais recentes sobre o tema, os quais apontam uma relação negativa e significativa entre este indicador e os índices de corrupção. Além disso, a literatura oferece também análises no sentido inverso do aqui testado: corrupção como variável preditora.  
+O que se percebe através destes tipos projetos é que não há um determinante comum a todos os casos que explique atitudes corruptivas, mas sim diversos fatores, que em diferentes níveis, afetam a corrupção.  
+
+### REFERÊNCIAS BIBLIOGRÁFICAS  
+
+Dahlberg, Stefan, Sören Holmberg, Bo Rothstein, Natalia Alvarado Pachon & Richard Svensson. "The Quality of Government Basic Dataset", version Jan18. *University of Gothenburg: The Quality of Government Institute*, 2018. Disponível em: <http://www.qog.pol.gu.se> doi:10.18157/QoGBasJan18. Acesso em: 10 jan. 2019
+
+DOLLAR, D.; ET AL. "Are women really the "fairer" sex? Corruption and women in government". *Journal of Economic Behavior & Organization*, vol. 46, pp. 423 - 429, 2001.  
+
+EAGLY, A. H. ; CROWLEY, M. "Gender and Helping Behavior. A Meta-Analytic Review of the Social Psychological Literature". *Psychological bulletin*, Vol. 100, No. 3. pp. 283-308, 1986.  
+
+FOX, J. "Regression Diagnostics", Quick-R, by Datacamp, disponível em: <https://www.statmethods.net/stats/rdiagnostics.html>. Acesso em 10 jan. 2019   
+
+GOERTZEL, T. "The gender gap: Sex, family income and political opinions in the early 1980's". *Journal of Political and Military Sociology*, vol. 11, no 2, 1983.  
+
+KOSMEHL, M. *Rule of Law and Fighting Corruption (online)*. Bertelsmann Stiftung, 2019. Disponível em: <https://www.bertelsmann-stiftung.de/en/our-projects/strategies-for-the-eu-neighbourhood/project-topics/rule-of-law-and-fight-against-corruption/>. Acesso em: 15 jan. 2019  
+
+POWER, T. J.; GONZÁLEZ, J. "Cultura Política, Capital Social e Percepções sobre Corrupção: Uma Investigação Quantitativa em Nível Mundial". *Revista de Sociologia Política*, Curitiba, no 21, pp. 51-69, 2003  
+
+REISS, M. C.; MITRA, K. "The effects of individual difference factors on the acceptability of ethical and unethical workplace behaviors". *Journal of Business Ethics*, vol. 17, no 14, pp. 1581-1593, 1998  
+
+ROSE-ACKERMAN, S.; PALIFKA, B. J. "Corruption and government: Causes, consequences, and reform". *Cambridge university press*, 2016  
+
+SWAMMY, A.; ET AL. "Gender and Corruption". *Journal of Development Economics*, vol. 64, pp. 25-55, 2001  
+
+
+
+
+
+
+
+
+
+
