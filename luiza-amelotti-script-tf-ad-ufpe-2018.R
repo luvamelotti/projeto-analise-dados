@@ -1,21 +1,23 @@
 # Ativando os pacotes exigidos:
-library(car)
-library(haven)
-library(MASS)
-library(pander)
-library(tidyverse)
-library(ggplot2)
-library(dplyr)
-library(readxl)
-library(stats)
-library(lmtest)
-library(ggpubr)
-library(coefplot)
+if(require(rio) == F) install.packages('rio', dependencies = TRUE); require(rio)
+if(require(car) == F) install.packages('car', dependencies = TRUE); require(rio)
+if(require(haven) == F) install.packages('haven', dependencies = TRUE); require(haven)
+if(require(MASS) == F) install.packages('MASS', dependencies = TRUE); require(MASS)
+if(require(pander) == F) install.packages('pander', dependencies = TRUE); require(pander)
+if(require(tidyverse) == F) install.packages('tidyverse', dependencies = TRUE); require(tidyverse)
+if(require(ggplot2) == F) install.packages('ggplot2', dependencies = TRUE); require(ggplot2)
+if(require(dplyr) == F) install.packages('dplyr', dependencies = TRUE); require(dplyr)
+if(require(readxl) == F) install.packages('readxl', dependencies = TRUE); require(readxl)
+if(require(stats) == F) install.packages('stats', dependencies = TRUE); require(stats)
+if(require(lmtest) == F) install.packages('lmtest', dependencies = TRUE); require(lmtest)
+if(require(ggpubr) == F) install.packages('ggpubr', dependencies = TRUE); require(ggpubr)
+if(require(coefplot) == F) install.packages('coefplot', dependencies = TRUE); require(coefplot)
 
 # ANÁLISE INICAL DOS DADOS ####
 
+DATABASE_CORRUPCAO <- import(file = "luiza_amelotti_bd_tf_ad_ufpe_2018.xlsx")
+
 # Abrindo o banco de dados
-library(readxl)
 luiza_amelotti_bd_tf_ad_ufpe_2018 <- read_excel("C:/Users/Luh/Google Drive/AULAS MESTRADO/2018_2 davi/luiza-amelotti-bd-tf-ad-ufpe-2018.xlsx")
 View(luiza_amelotti_bd_tf_ad_ufpe_2018)
 
@@ -29,7 +31,7 @@ na.omit(DATABASE_CORRUPCAO)
 Y <- DATABASE_CORRUPCAO$vdem_corr
 
 # Organizando as VIs:
-X1 <- is.numeric(DATABASE_CORRUPCAO$wdi_wip)  # participação de mulheres no parlamento
+X1 <- (DATABASE_CORRUPCAO$wdi_wip)  # participação de mulheres no parlamento
 X2 <- DATABASE_CORRUPCAO$wbgi_rle # estado de direito
 X3 <- DATABASE_CORRUPCAO$icrg_qog # qualidade do governo
 
