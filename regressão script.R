@@ -25,12 +25,13 @@ na.omit(DATABASE_CORRUPCAO)
 Y <- DATABASE_CORRUPCAO$vdem_corr
 
 # Organizando as VIs:
-X1 <- DATABASE_CORRUPCAO$wdi_wip  # participação de mulheres no parlamento
+X1 <- is.numeric(DATABASE_CORRUPCAO$wdi_wip)  # participação de mulheres no parlamento
 X2 <- DATABASE_CORRUPCAO$wbgi_rle # estado de direito
 X3 <- DATABASE_CORRUPCAO$icrg_qog # qualidade do governo
 
 # Analisando a estrutura das variáveis:
 str(DATABASE_CORRUPCAO)
+summary(Y)
 
 # observando as estatísticas descritivas das varíaveis
 DATABASE_CORRUPCAO$ht_region <- as.factor(DATABASE_CORRUPCAO$ht_region) 
@@ -101,7 +102,7 @@ durbinWatsonTest(reg) # teste para erros autocorrelacionados
 # Transformação Box-Cox para observar o valor de lâmbida que maximiza a função
 trans_var <- boxCox(reg, lam=seq(-1, 1, 1/10), plotit = TRUE)
 trans_var
-# A função é maximizada à um lâmbida de 0.5
+# A função é maximizada à um lâmbda de 0.5
 
 #transformando a variável:
 Y_transf <- (DATABASE_CORRUPCAO$vdem_corr^(0.5)-1)/0.5
@@ -128,9 +129,17 @@ na.omit(DATABASE_CORRUPCAO2)
 X4 <- DATABASE_CORRUPCAO2$undp_hdi
 
 #regressão final com nova VI (X4), exclusão da variável wbgi_rle (X2) para tentar solucionar a multicolearidade e VD transformada: 
-reg_final <- lm(Y_transf ~ X1 + X2 + X4)
+reg_final <- lm(Y_transf ~ X1 + X3 + X4)
 reg_final
 summary(reg_final)
+
+regressao_final <- data.frame(Observations = c(194),
+                        "Deleted observations" = c(65),
+                        Residual_Std._Error = c("0,2376"),
+                        R2 = c("0,7842"),
+                        Adjusted_R2 = c("0,779"),
+                        p_value = c("2,2e-16"))
+pander(regressao_final, caption = "Final Regression Results")
 
 #plotando os resultados da regressão
 coefplot(reg_final)
@@ -303,10 +312,29 @@ basic3+
   theme(axis.text = element_text( angle = 90, color="black", size=8, face=2))
 
 
-# criando gráfico de índice de corrupção x região
+# criando gráfico de densidade do índice de corrupção x região
+DATABASE_CORRUPCAO$ht_region <- (DATABASE_CORRUPCAO$ht_region = factor(DATABASE_CORRUPCAO$ht_region, 
+                                                                       labels = c("Eastern Europe and post Soviet Union", "Latin America", "North Africa & the Middle East",
+                                                                                  "Sub-Saharan Africa","Western Europe and North America","East Asia", "South-East Asia", 
+                                                                                  "South Asia", "The Pacific", "The Caribbean")))
+
+corr <- ggplot(DATABASE_CORRUPCAO, aes(x = DATABASE_CORRUPCAO$vdem_corr, y = DATABASE_CORRUPCAO$ht_region , 
+                                      fill = DATABASE_CORRUPCAO$ht_region )) +
+  geom_density_ridges(alpha=0.3, bandwidth=0.1) +
+  theme_light() +
+  theme(axis.text.x=element_text(hjust = 0)) +
+  theme(legend.position = "none") +
+  labs(title="Corrupção por Regiões do Mundo", 
+       x="Índice de Corrupção", y="",
+       fill = "",
+       caption = "Elaboração Própria com base nos dados do QoG")
+corr
+
+
+# criando gráfico de barra do índice de corrupção x região
 theme_set(theme_bw())
 DATABASE_CORRUPCAO$ht_region <- paste(as.character(DATABASE_CORRUPCAO$ht_region))
-corr <- ggplot(data=DATABASE_CORRUPCAO,aes(x=ht_region, y=vdem_corr)) + 
+corr2 <- ggplot(data=DATABASE_CORRUPCAO,aes(x=ht_region, y=vdem_corr)) + 
   geom_bar(stat = "identity", aes(fill=factor(ht_region), alpha = 0.9)) +
   scale_fill_hue(c = 40) +
   theme(axis.text.x=element_text(angle = -45, hjust = 0)) +
@@ -317,7 +345,7 @@ corr <- ggplot(data=DATABASE_CORRUPCAO,aes(x=ht_region, y=vdem_corr)) +
   labs(title="Gráfico 5 - Índice Corrupção", caption = "Elabroação Própria com base nos dados do QoG",
        x="",
        y="ìndice de Corrupção")
-corr
+corr2
 # criando gráfico de IDH x região
 DATABASE_CORRUPCAO$ht_region <- (DATABASE_CORRUPCAO$ht_region = factor(DATABASE_CORRUPCAO$ht_region, 
                                                                        labels = c("Eastern Europe and post Soviet Union", "Latin America", "North Africa & the Middle East",
