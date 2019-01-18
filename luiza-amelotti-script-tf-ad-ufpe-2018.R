@@ -15,8 +15,6 @@ if(require(coefplot) == F) install.packages('coefplot', dependencies = TRUE); re
 
 # ANÁLISE INICAL DOS DADOS ####
 
-DATABASE_CORRUPCAO <- import(file = "luiza_amelotti_bd_tf_ad_ufpe_2018.xlsx")
-
 # Abrindo o banco de dados
 luiza_amelotti_bd_tf_ad_ufpe_2018 <- read_excel("C:/Users/Luh/Google Drive/AULAS MESTRADO/2018_2 davi/luiza-amelotti-bd-tf-ad-ufpe-2018.xlsx")
 View(luiza_amelotti_bd_tf_ad_ufpe_2018)
